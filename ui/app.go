@@ -9,6 +9,8 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/driver/desktop"
 	"fyne.io/fyne/v2/widget"
 	"igcmailimap/config"
@@ -34,6 +36,7 @@ type App struct {
 	userEntry          *widget.Entry
 	passEntry          *widget.Entry
 	outputEntry        *widget.Entry
+	outputBrowseBtn    *widget.Button
 	intervalEntry      *widget.Entry
 	startupCheck       *widget.Check
 	loggingCheck       *widget.Check
@@ -126,6 +129,18 @@ func (a *App) buildConfigForm() {
 	a.outputEntry.SetPlaceHolder("C:\\IGC or /path/to/igc")
 	a.outputEntry.SetText(a.Config.OutputFolder)
 
+	a.outputBrowseBtn = widget.NewButton("Browse...", func() {
+		d := dialog.NewFolderOpen(func(uri fyne.ListableURI, err error) {
+			if err != nil {
+				return
+			}
+			if uri != nil {
+				a.outputEntry.SetText(uri.Path())
+			}
+		}, a.Win)
+		d.Show()
+	})
+
 	a.intervalEntry = widget.NewEntry()
 	a.intervalEntry.SetPlaceHolder("61")
 	a.intervalEntry.SetText(strconv.Itoa(a.Config.IntervalSec))
@@ -156,7 +171,7 @@ func (a *App) buildConfigForm() {
 		widget.NewFormItem("IMAP server", a.serverEntry),
 		widget.NewFormItem("User", a.userEntry),
 		widget.NewFormItem("Password", a.passEntry),
-		widget.NewFormItem("Output folder", a.outputEntry),
+		widget.NewFormItem("Output folder", container.NewBorder(nil, nil, nil, a.outputBrowseBtn, a.outputEntry)),
 		widget.NewFormItem("Interval (seconds)", a.intervalEntry),
 		widget.NewFormItem("", a.startupCheck),
 		widget.NewFormItem("", a.loggingCheck),
