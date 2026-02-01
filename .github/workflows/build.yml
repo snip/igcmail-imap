@@ -62,6 +62,12 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y libgl1-mesa-dev libx11-dev xorg-dev libxrandr-dev libxcursor-dev libxinerama-dev libxi-dev libglx-dev libgl-dev
+        # Install 32-bit development libraries for 386 builds
+        if [ "${{ matrix.goarch }}" = "386" ]; then
+          sudo apt-get install -y gcc-multilib g++-multilib
+          # Install 32-bit versions of GUI libraries
+          sudo apt-get install -y libgl1-mesa-dev:i386 libx11-dev:i386 libxi-dev:i386
+        fi
         # Install cross-compilation toolchains for Windows builds
         if [ "${{ matrix.goos }}" = "windows" ]; then
           sudo apt-get install -y gcc-mingw-w64
@@ -93,6 +99,11 @@ jobs:
         else
           EXT=""
           LDFLAGS="-s -w"
+          # Set up 32-bit compilation for Linux 386
+          if [ "${{ matrix.goos }}" = "linux" ] && [ "${{ matrix.goarch }}" = "386" ]; then
+            export CGO_CFLAGS="-m32"
+            export CGO_LDFLAGS="-m32"
+          fi
         fi
         CGO_ENABLED=1 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -ldflags="${LDFLAGS}" -o igcmailimap${EXT} .
       shell: bash
