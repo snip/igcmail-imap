@@ -158,8 +158,7 @@ jobs:
           echo "FILES<<EOF"
           FILES=$(find artifacts -name "*.zip" -o -name "*.tar.gz" -print)
           echo "EOF"
-          } >> $GITHUB_ENV
-        }
+        } >> $GITHUB_ENV
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
