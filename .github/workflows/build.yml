@@ -115,12 +115,16 @@ jobs:
         echo "Created release archives:"
         ls -la
 
+    - name: Get release files
+      id: get-files
+      run: |
+        FILES=$(find artifacts -name "*.zip" -o -name "*.tar.gz" | tr '\n' ' ')
+        echo "files=$FILES" >> $GITHUB_OUTPUT
+
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
       with:
-        files: |
-          artifacts/*.zip
-          artifacts/*.tar.gz
+        files: ${{ steps.get-files.outputs.files }}
         generate_release_notes: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
