@@ -1,6 +1,6 @@
 # IGCmail IMAP
 
-A desktop application for Windows and macOS that monitors an IMAP mailbox and automatically extracts IGC (flight track) file attachments. Built with Go and Fyne for a native cross-platform experience.
+A desktop application for Windows, macOS, and Linux that monitors an IMAP mailbox and automatically extracts IGC (flight track) file attachments. Built with Go and Fyne for a native cross-platform experience.
 
 ## ✨ Features
 
@@ -9,12 +9,14 @@ A desktop application for Windows and macOS that monitors an IMAP mailbox and au
 - **🎯 IGC File Extraction**: Automatically extracts .igc attachments to a configurable folder
 - **🔄 Duplicate Handling**: Same filenames get timestamped to avoid overwrites
 - **📱 System Tray Integration**: Minimizes to tray with comprehensive menu controls
-- **📝 Comprehensive Logging**: Detailed operation logs with configurable output
-- **🔔 Desktop Notifications**: Optional notifications for errors and status updates
-- **🚀 Auto-Startup**: Platform-specific startup integration (macOS Launch Agents, Windows Registry)
+- **📝 Comprehensive Logging**: Detailed operation logs with configurable output (app lifecycle, polling details, server info)
+- **🔔 Desktop Notifications**: Optional notifications for errors, polling events, and window management
+- **🚀 Auto-Startup**: Platform-specific startup integration (macOS Launch Agents, Windows Registry, Linux not supported)
 - **⏯️ Polling Controls**: Start/stop polling from both main UI and system tray menu
-- **🔧 User-Friendly Configuration**: GUI-based settings with persistent storage
-- **🌍 Cross-Platform**: Native builds for Windows and macOS
+- **🔧 Smart Configuration UI**: GUI-based settings with change detection, directory browser, and persistent storage
+- **🌍 Cross-Platform**: Native builds for Windows, macOS, and Linux (both 64-bit and 32-bit architectures)
+- **🚀 CI/CD**: Automated testing and releases with GitHub Actions
+- **🖥️ Native GUI Experience**: No terminal windows on Windows, proper app bundles on macOS
 
 ## 🚀 Quick Start
 
@@ -22,6 +24,7 @@ A desktop application for Windows and macOS that monitors an IMAP mailbox and au
 
 - **Go 1.21 or newer**
 - For GUI support: **Fyne v2** (automatically resolved via Go modules)
+- **Platform-specific GUI libraries** (automatically installed on supported platforms)
 
 Check your Go version:
 ```bash
@@ -54,57 +57,77 @@ go version
 
 ## ⚙️ Configuration
 
-The application uses a GUI for configuration. Key settings include:
+The application uses an intuitive GUI for configuration with smart features:
 
 - **IMAP Server**: Host:port (e.g., `imap.gmail.com:993`)
 - **Credentials**: Username and password
-- **Output Folder**: Directory for extracted IGC files
+- **Output Folder**: Directory browser with create new folder capability
 - **Polling Interval**: Seconds between checks
-- **Auto-startup**: Platform-specific startup integration
-- **Logging**: Enable/disable detailed logging
-- **Notifications**: Enable/disable desktop notifications
+- **Auto-startup**: Platform-specific startup integration (not available on Linux)
+- **Logging**: Enable/disable detailed logging with enhanced app lifecycle tracking
+- **Notifications**: Enable/disable desktop notifications (errors, polling events, UI feedback)
+
+### Smart UI Features
+
+- **Change Detection**: Save button only enables when settings are modified
+- **Directory Browser**: Browse existing folders or create new ones
+- **Minimize to Tray**: Dedicated button to minimize to system tray
+- **Quit Button**: Clean application exit with proper shutdown logging
 
 ### Configuration Files Location
 
+- **Linux**: `~/.config/igcMailImap/` or next to executable
 - **macOS**: `~/Library/Application Support/igcMailImap/`
 - **Windows**: Next to the executable
 
 ## 📋 Usage
 
 1. Launch the application and configure your IMAP settings
-2. Set your output folder for IGC files
+2. Set your output folder using the directory browser (can create new folders)
 3. Optionally enable logging and notifications
-4. Start polling to begin monitoring
-5. The app minimizes to system tray - use tray menu to control polling
-6. IGC files are automatically extracted as emails arrive
+4. Start polling to begin monitoring - you'll see notifications when polling starts
+5. Use "Minimize to Tray" button or close window to minimize to system tray
+6. Use tray menu to control polling or access settings
+7. IGC files are automatically extracted as emails arrive
+8. Use "Quit" button or tray menu to exit with proper shutdown logging
 
-## 🖥️ System Tray
+## 🖥️ System Tray & UI Controls
 
+### System Tray Menu
 The application provides comprehensive system tray controls:
 
 - **Show**: Open the main configuration window
-- **Start polling**: Begin monitoring for new emails
-- **Stop polling**: Pause email monitoring
-- **Quit**: Exit the application
+- **Start polling**: Begin monitoring for new emails (with notification)
+- **Stop polling**: Pause email monitoring (with notification)
+- **Quit**: Exit the application (with shutdown logging)
 
 Menu items are dynamically enabled/disabled based on current state.
+
+### Main UI Buttons
+- **Start/Stop Polling**: Control IMAP monitoring
+- **Save**: Only enabled when configuration changes are detected
+- **Minimize to Tray**: Hide window to system tray (with notification)
+- **Quit**: Clean application exit
 
 ## 📝 Logging
 
 When enabled, detailed logs are written to `igcmailimap.log` in your output folder:
 
-- Connection attempts and status
-- Message fetching details (UID, subject, sender)
-- File extraction results
-- Error conditions and troubleshooting information
+- **Application Lifecycle**: Start and shutdown events
+- **Connection Details**: Server, username, and status for each polling session
+- **Message Processing**: UID, subject, sender for fetched emails
+- **File Operations**: Extraction results and duplicate handling
+- **Error Tracking**: Comprehensive error logging and troubleshooting information
+- **Polling Events**: Start/stop timing with interval information
 
 ## 🔔 Notifications
 
 Optional desktop notifications for:
 
-- IMAP connection errors
-- File extraction failures
-- Polling start/stop events
+- **Connection Issues**: IMAP connection errors and authentication problems
+- **File Operations**: Extraction failures and duplicate file handling
+- **Polling Events**: Start/stop notifications with server and interval details
+- **UI Feedback**: Window minimization and application state changes
 
 ## 🔧 Development
 
@@ -119,22 +142,48 @@ igcmail-imap/
 ├── logger/                 # Logging functionality
 ├── config/                 # Configuration management
 ├── state/                  # UID tracking for incremental sync
-└── startup/                # Platform-specific auto-startup
+├── startup/                # Platform-specific auto-startup
+├── .github/workflows/      # CI/CD pipeline configuration
+│   ├── ci.yml             # Testing workflow
+│   └── build.yml          # Build and release workflow
+└── README.md              # This file
 ```
 
 ### Building for Different Platforms
 
+The application supports automated multi-platform builds via GitHub Actions CI/CD.
+
+#### Manual Builds
+
 ```bash
+# Linux
+GOOS=linux GOARCH=amd64 go build -o igcmailimap .
+GOOS=linux GOARCH=386 go build -o igcmailimap-386 .
+
 # macOS (Intel)
-GOOS=darwin GOARCH=amd64 go build -o igcmailimap-mac-intel .
+GOOS=darwin GOARCH=amd64 go build -o igcmailimap .
 
 # macOS (Apple Silicon)
-GOOS=darwin GOARCH=arm64 go build -o igcmailimap-mac-arm64 .
+GOOS=darwin GOARCH=arm64 go build -o igcmailimap .
 
-# Windows
-GOOS=windows GOARCH=amd64 go build -o igcmailimap.exe .
-
+# Windows (GUI application, no terminal window)
+GOOS=windows GOARCH=amd64 go build -ldflags="-H windowsgui" -o igcmailimap.exe .
+GOOS=windows GOARCH=386 go build -ldflags="-H windowsgui" -o igcmailimap-386.exe .
 ```
+
+#### CI/CD
+
+Automated testing and releases are handled by GitHub Actions:
+
+- **Testing**: Runs on Windows, macOS, and Linux for every push/PR
+- **Building**: Cross-compiles for all platforms (6 binaries total)
+- **Releases**: Automated when version tags are pushed (e.g., `v1.0.0`)
+
+### Configuration Files Location
+
+- **Linux**: `~/.config/igcMailImap/` or next to executable
+- **macOS**: `~/Library/Application Support/igcMailImap/`
+- **Windows**: Next to the executable
 
 ## 🤝 Contributing
 
