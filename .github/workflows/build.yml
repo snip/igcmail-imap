@@ -156,14 +156,14 @@ jobs:
       run: |
         {
           echo "FILES<<EOF"
-          FILES=$(find artifacts -name "*.zip" -o -name "*.tar.gz" -print)
+          find artifacts -name "*.zip" -o -name "*.tar.gz" -print
           echo "EOF"
         } >> $GITHUB_ENV
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
-        files: ${{ steps.get-files.outputs.files }}
+        files: ${{ steps.get-files.outputs.FILES }}
         generate_release_notes: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
