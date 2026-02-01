@@ -20,27 +20,33 @@ jobs:
           - goos: windows
             goarch: amd64
             name: windows-amd64
+            runs-on: ubuntu-latest
           - goos: windows
             goarch: 386
             name: windows-386
+            runs-on: ubuntu-latest
 
           # macOS builds
           - goos: darwin
             goarch: amd64
             name: darwin-amd64
+            runs-on: macos-latest
           - goos: darwin
             goarch: arm64
             name: darwin-arm64
+            runs-on: macos-latest
 
           # Linux builds
           - goos: linux
             goarch: amd64
             name: linux-amd64
+            runs-on: ubuntu-latest
           - goos: linux
             goarch: 386
             name: linux-386
+            runs-on: ubuntu-latest
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runs-on }}
 
     steps:
     - name: Checkout code
@@ -51,12 +57,15 @@ jobs:
       with:
         go-version: '1.21'
 
-    - name: Install GUI and cross-compilation dependencies (Linux)
+    - name: Install GUI dependencies (Linux)
+      if: matrix.runs-on == 'ubuntu-latest'
       run: |
         sudo apt-get update
         sudo apt-get install -y libgl1-mesa-dev libx11-dev xorg-dev libxrandr-dev libxcursor-dev libxinerama-dev libxi-dev libglx-dev libgl-dev
-        # Install cross-compilation toolchains for Windows
-        sudo apt-get install -y gcc-mingw-w64
+        # Install cross-compilation toolchains for Windows builds
+        if [ "${{ matrix.goos }}" = "windows" ]; then
+          sudo apt-get install -y gcc-mingw-w64
+        fi
 
     - name: Cache Go modules
       uses: actions/cache@v4
