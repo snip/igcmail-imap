@@ -213,6 +213,8 @@ func (a *App) buildConfigForm() {
 	a.stopBtn = widget.NewButton("Stop polling", func() { a.StopPolling() })
 	a.updatePollButtons()
 
+	quitBtn := widget.NewButton("Quit", func() { a.quit() })
+
 	// Initialize original values and save button state
 	a.storeOriginalValues()
 	a.updateSaveButtonState()
@@ -229,6 +231,7 @@ func (a *App) buildConfigForm() {
 		widget.NewFormItem("", a.startBtn),
 		widget.NewFormItem("", a.stopBtn),
 		widget.NewFormItem("", a.saveBtn),
+		widget.NewFormItem("", quitBtn),
 	)
 	a.Win.SetContent(form)
 }
