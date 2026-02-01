@@ -13,16 +13,6 @@ jobs:
     strategy:
       matrix:
         include:
-          # Linux builds
-          - os: ubuntu-latest
-            goos: linux
-            goarch: amd64
-            name: linux-amd64
-          - os: ubuntu-latest
-            goos: linux
-            goarch: arm64
-            name: linux-arm64
-
           # Windows builds
           - os: windows-latest
             goos: windows

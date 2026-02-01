@@ -41,9 +41,6 @@ jobs:
     - name: Vet code
       run: go vet ./...
 
-    - name: Build (Linux)
-      run: CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o igcmailimap-linux .
-
     - name: Build (Windows)
       run: CGO_ENABLED=1 GOOS=windows GOARCH=amd64 go build -o igcmailimap-windows.exe .
 

@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -51,15 +52,8 @@ func configDir() (string, error) {
 		}
 		return filepath.Dir(exe), nil
 	default:
-		// Linux and others: use XDG_CONFIG_HOME or ~/.config
-		if dir := os.Getenv("XDG_CONFIG_HOME"); dir != "" {
-			return filepath.Join(dir, appName), nil
-		}
-		home, err := os.UserHomeDir()
-		if err != nil {
-			return "", err
-		}
-		return filepath.Join(home, ".config", appName), nil
+		// Unsupported platform
+		return "", fmt.Errorf("unsupported platform: %s", runtime.GOOS)
 	}
 }
 

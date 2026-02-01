@@ -1,6 +1,6 @@
 # IGCmail IMAP
 
-A desktop application for Windows, macOS, and Linux that monitors an IMAP mailbox and automatically extracts IGC (flight track) file attachments. Built with Go and Fyne for a native cross-platform experience.
+A desktop application for Windows and macOS that monitors an IMAP mailbox and automatically extracts IGC (flight track) file attachments. Built with Go and Fyne for a native cross-platform experience.
 
 ## ✨ Features
 
@@ -14,7 +14,7 @@ A desktop application for Windows, macOS, and Linux that monitors an IMAP mailbo
 - **🚀 Auto-Startup**: Platform-specific startup integration (macOS Launch Agents, Windows Registry)
 - **⏯️ Polling Controls**: Start/stop polling from both main UI and system tray menu
 - **🔧 User-Friendly Configuration**: GUI-based settings with persistent storage
-- **🌍 Cross-Platform**: Native builds for Windows, macOS, and Linux
+- **🌍 Cross-Platform**: Native builds for Windows and macOS
 
 ## 🚀 Quick Start
 
@@ -68,7 +68,6 @@ The application uses a GUI for configuration. Key settings include:
 
 - **macOS**: `~/Library/Application Support/igcMailImap/`
 - **Windows**: Next to the executable
-- **Linux**: `~/.config/igcMailImap/` (or `$XDG_CONFIG_HOME`)
 
 ## 📋 Usage
 
@@ -135,8 +134,6 @@ GOOS=darwin GOARCH=arm64 go build -o igcmailimap-mac-arm64 .
 # Windows
 GOOS=windows GOARCH=amd64 go build -o igcmailimap.exe .
 
-# Linux
-GOOS=linux GOARCH=amd64 go build -o igcmailimap-linux .
 ```
 
 ## 🤝 Contributing
