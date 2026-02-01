@@ -155,7 +155,7 @@ jobs:
       id: get-files
       run: |
         FILES=$(find artifacts -name "*.zip" -o -name "*.tar.gz" | tr '\n' '\\n')
-        echo "files=${FILES}" >> $GITHUB_OUTPUT
+        echo "files=\"${FILES}\"" >> $GITHUB_OUTPUT
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
