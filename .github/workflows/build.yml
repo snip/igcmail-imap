@@ -156,7 +156,7 @@ jobs:
       run: |
         {
           echo "FILES<<EOF"
-          find artifacts -name "*.zip" -o -name "*.tar.gz" -print
+          find artifacts -name "*.zip" -o -name "*.tar.gz"
           echo "EOF"
         } >> $GITHUB_OUTPUT
 
