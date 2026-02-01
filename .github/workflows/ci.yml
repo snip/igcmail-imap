@@ -8,7 +8,15 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            name: Windows
+          - os: macos-latest
+            name: macOS
+
+    runs-on: ${{ matrix.os }}
 
     steps:
     - name: Checkout code
@@ -22,7 +30,9 @@ jobs:
     - name: Cache Go modules
       uses: actions/cache@v3
       with:
-        path: ~/go/pkg/mod
+        path: |
+          ~/go/pkg/mod
+          %LocalAppData%\go-build
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
         restore-keys: |
           ${{ runner.os }}-go-
@@ -37,12 +47,16 @@ jobs:
           gofmt -s -l .
           exit 1
         fi
+      shell: bash
 
     - name: Vet code
       run: go vet ./...
 
-    - name: Build (Windows)
-      run: CGO_ENABLED=1 GOOS=windows GOARCH=amd64 go build -o igcmailimap-windows.exe .
-
-    - name: Build (macOS)
-      run: CGO_ENABLED=1 GOOS=darwin GOARCH=amd64 go build -o igcmailimap-darwin .
+    - name: Build
+      run: |
+        if [ "$RUNNER_OS" = "Windows" ]; then
+          CGO_ENABLED=1 go build -o igcmailimap.exe .
+        else
+          CGO_ENABLED=1 go build -o igcmailimap .
+        fi
+      shell: bash
