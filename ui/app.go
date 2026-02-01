@@ -45,6 +45,17 @@ type App struct {
 	startBtn           *widget.Button
 	stopBtn            *widget.Button
 
+	// Original values for change tracking
+	originalServer      string
+	originalUser        string
+	originalPassword    string
+	originalOutput      string
+	originalInterval    int
+	originalStartup     bool
+	originalLogging     bool
+	originalNotifications bool
+	saveBtn             *widget.Button
+
 	// Tray menu items (for dynamic updates)
 	startPollItem *fyne.MenuItem
 	stopPollItem  *fyne.MenuItem
@@ -137,18 +148,22 @@ func (a *App) buildConfigForm() {
 	a.serverEntry = widget.NewEntry()
 	a.serverEntry.SetPlaceHolder("imap.example.com:993")
 	a.serverEntry.SetText(a.Config.IMAPServer)
+	a.serverEntry.OnChanged = func(string) { a.updateSaveButtonState() }
 
 	a.userEntry = widget.NewEntry()
 	a.userEntry.SetPlaceHolder("user@example.com")
 	a.userEntry.SetText(a.Config.IMAPUser)
+	a.userEntry.OnChanged = func(string) { a.updateSaveButtonState() }
 
 	a.passEntry = widget.NewPasswordEntry()
 	a.passEntry.SetPlaceHolder("password")
 	a.passEntry.SetText(a.Config.IMAPPassword)
+	a.passEntry.OnChanged = func(string) { a.updateSaveButtonState() }
 
 	a.outputEntry = widget.NewEntry()
 	a.outputEntry.SetPlaceHolder("C:\\IGC or /path/to/igc")
 	a.outputEntry.SetText(a.Config.OutputFolder)
+	a.outputEntry.OnChanged = func(string) { a.updateSaveButtonState() }
 
 	a.outputBrowseBtn = widget.NewButton("Browse...", func() {
 		d := dialog.NewFolderOpen(func(uri fyne.ListableURI, err error) {
@@ -163,11 +178,12 @@ func (a *App) buildConfigForm() {
 	})
 
 	a.intervalEntry = widget.NewEntry()
-	a.intervalEntry.SetPlaceHolder("61")
+	a.intervalEntry.SetPlaceHolder("60")
 	a.intervalEntry.SetText(strconv.Itoa(a.Config.IntervalSec))
 	if a.Config.IntervalSec <= 0 {
-		a.intervalEntry.SetText("61")
+		a.intervalEntry.SetText("60")
 	}
+	a.intervalEntry.OnChanged = func(string) { a.updateSaveButtonState() }
 
 	startupEnabled, _ := startup.Enabled()
 	a.startupCheck = widget.NewCheck(startupCheckLabel(), nil)
@@ -179,14 +195,27 @@ func (a *App) buildConfigForm() {
 	a.notificationsCheck = widget.NewCheck("Enable notifications", nil)
 	a.notificationsCheck.SetChecked(a.Config.NotificationsEnabled)
 
-	saveBtn := widget.NewButton("Save", func() { a.save() })
+	a.saveBtn = widget.NewButton("Save", func() { a.save() })
+	// Preserve existing startup check functionality
+	originalStartupOnChanged := a.startupCheck.OnChanged
 	a.startupCheck.OnChanged = func(checked bool) {
+		if originalStartupOnChanged != nil {
+			originalStartupOnChanged(checked)
+		}
 		_ = startup.SetEnabled(checked)
+		a.updateSaveButtonState()
 	}
+
+	a.loggingCheck.OnChanged = func(bool) { a.updateSaveButtonState() }
+	a.notificationsCheck.OnChanged = func(bool) { a.updateSaveButtonState() }
 
 	a.startBtn = widget.NewButton("Start polling", func() { a.StartPolling() })
 	a.stopBtn = widget.NewButton("Stop polling", func() { a.StopPolling() })
 	a.updatePollButtons()
+
+	// Initialize original values and save button state
+	a.storeOriginalValues()
+	a.updateSaveButtonState()
 
 	form := widget.NewForm(
 		widget.NewFormItem("IMAP server", a.serverEntry),
@@ -199,7 +228,7 @@ func (a *App) buildConfigForm() {
 		widget.NewFormItem("", a.notificationsCheck),
 		widget.NewFormItem("", a.startBtn),
 		widget.NewFormItem("", a.stopBtn),
-		widget.NewFormItem("", saveBtn),
+		widget.NewFormItem("", a.saveBtn),
 	)
 	a.Win.SetContent(form)
 }
@@ -207,7 +236,7 @@ func (a *App) buildConfigForm() {
 func parseInt(s string) int {
 	n, _ := strconv.Atoi(s)
 	if n <= 0 {
-		return 61
+		return 60
 	}
 	return n
 }
@@ -232,7 +261,7 @@ func (a *App) save() {
 	a.Config.OutputFolder = a.outputEntry.Text
 	a.Config.IntervalSec = parseInt(a.intervalEntry.Text)
 	if a.Config.IntervalSec <= 0 {
-		a.Config.IntervalSec = 61
+		a.Config.IntervalSec = 60
 	}
 	a.Config.RunAtStartup = a.startupCheck.Checked
 	a.Config.LoggingEnabled = a.loggingCheck.Checked
@@ -255,6 +284,43 @@ func (a *App) save() {
 	}
 	_ = startup.SetEnabled(a.Config.RunAtStartup)
 	a.notifyInfo("Settings saved")
+
+	// Reset original values and disable save button
+	a.storeOriginalValues()
+	a.updateSaveButtonState()
+}
+
+func (a *App) storeOriginalValues() {
+	a.originalServer = a.Config.IMAPServer
+	a.originalUser = a.Config.IMAPUser
+	a.originalPassword = a.Config.IMAPPassword
+	a.originalOutput = a.Config.OutputFolder
+	a.originalInterval = a.Config.IntervalSec
+	a.originalStartup = a.Config.RunAtStartup
+	a.originalLogging = a.Config.LoggingEnabled
+	a.originalNotifications = a.Config.NotificationsEnabled
+}
+
+func (a *App) hasUnsavedChanges() bool {
+	return a.serverEntry.Text != a.originalServer ||
+		a.userEntry.Text != a.originalUser ||
+		a.passEntry.Text != a.originalPassword ||
+		a.outputEntry.Text != a.originalOutput ||
+		parseInt(a.intervalEntry.Text) != a.originalInterval ||
+		a.startupCheck.Checked != a.originalStartup ||
+		a.loggingCheck.Checked != a.originalLogging ||
+		a.notificationsCheck.Checked != a.originalNotifications
+}
+
+func (a *App) updateSaveButtonState() {
+	if a.saveBtn != nil {
+		hasChanges := a.hasUnsavedChanges()
+		if hasChanges {
+			a.saveBtn.Enable()
+		} else {
+			a.saveBtn.Disable()
+		}
+	}
 }
 
 func (a *App) notifyError(msg string) {
@@ -430,7 +496,7 @@ func (a *App) intervalSeconds() int {
 	sec := a.Config.IntervalSec
 	a.mu.Unlock()
 	if sec <= 0 {
-		return 61
+		return 60
 	}
 	return sec
 }
