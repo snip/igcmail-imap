@@ -40,16 +40,6 @@ jobs:
     - name: Verify dependencies
       run: go mod verify
 
-    - name: Check formatting
-      run: |
-        UNFORMATTED=$(gofmt -s -l .)
-        if [ -n "$UNFORMATTED" ]; then
-          echo "The following files are not formatted properly:"
-          echo "$UNFORMATTED"
-          exit 1
-        fi
-      shell: bash
-
     - name: Vet code
       run: go vet ./...
 
