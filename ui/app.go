@@ -363,7 +363,7 @@ func (a *App) StartPolling() {
 	a.updatePollButtons()
 
 	// Log that polling has started
-	a.Logger.Info(fmt.Sprintf("IMAP polling started for %s@%s with %d second intervals", a.Config.IMAPUser, a.Config.IMAPServer, a.Config.IntervalSec))
+	a.Logger.Info(fmt.Sprintf("IMAP polling started for %s from %s with %d second intervals", a.Config.IMAPUser, a.Config.IMAPServer, a.Config.IntervalSec))
 
 	// Notify user that polling has started
 	a.notifyInfo(fmt.Sprintf("IMAP polling started (%d second intervals)", a.Config.IntervalSec))
