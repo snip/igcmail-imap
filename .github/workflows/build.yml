@@ -17,17 +17,17 @@ jobs:
           - goos: windows
             goarch: amd64
             name: windows-amd64
-          - goos: windows
-            goarch: 386
-            name: windows-386
+          #- goos: windows
+          #  goarch: 386
+          #  name: windows-386
 
           # macOS builds
-          - goos: darwin
-            goarch: amd64
-            name: darwin-amd64
-          - goos: darwin
-            goarch: arm64
-            name: darwin-arm64
+          #- goos: darwin
+          #  goarch: amd64
+          #  name: darwin-amd64
+          #- goos: darwin
+          #  goarch: arm64
+          #  name: darwin-arm64
 
     runs-on: ubuntu-latest
 
