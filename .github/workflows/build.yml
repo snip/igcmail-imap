@@ -64,6 +64,9 @@ jobs:
         sudo apt-get install -y libgl1-mesa-dev libx11-dev xorg-dev libxrandr-dev libxcursor-dev libxinerama-dev libxi-dev libglx-dev libgl-dev
         # Install 32-bit development libraries for Linux 386 builds
         if [ "${{ matrix.goos }}" = "linux" ] && [ "${{ matrix.goarch }}" = "386" ]; then
+          # Enable multiarch support for 32-bit packages
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
           sudo apt-get install -y gcc-multilib g++-multilib
           # Install 32-bit versions of GUI libraries
           sudo apt-get install -y libgl1-mesa-dev:i386 libx11-dev:i386 libxi-dev:i386
