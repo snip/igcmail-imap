@@ -148,17 +148,26 @@ func (a *App) buildConfigForm() {
 	a.serverEntry = widget.NewEntry()
 	a.serverEntry.SetPlaceHolder("imap.example.com:993")
 	a.serverEntry.SetText(a.Config.IMAPServer)
-	a.serverEntry.OnChanged = func(string) { a.updateSaveButtonState() }
+	a.serverEntry.OnChanged = func(string) {
+		a.updateSaveButtonState()
+		a.updatePollButtons()
+	}
 
 	a.userEntry = widget.NewEntry()
 	a.userEntry.SetPlaceHolder("user@example.com")
 	a.userEntry.SetText(a.Config.IMAPUser)
-	a.userEntry.OnChanged = func(string) { a.updateSaveButtonState() }
+	a.userEntry.OnChanged = func(string) {
+		a.updateSaveButtonState()
+		a.updatePollButtons()
+	}
 
 	a.passEntry = widget.NewPasswordEntry()
 	a.passEntry.SetPlaceHolder("password")
 	a.passEntry.SetText(a.Config.IMAPPassword)
-	a.passEntry.OnChanged = func(string) { a.updateSaveButtonState() }
+	a.passEntry.OnChanged = func(string) {
+		a.updateSaveButtonState()
+		a.updatePollButtons()
+	}
 
 	a.outputEntry = widget.NewEntry()
 	a.outputEntry.SetPlaceHolder("C:\\IGC or /path/to/igc")
@@ -380,7 +389,12 @@ func (a *App) quit() {
 	a.Fyne.Quit()
 }
 
-// updatePollButtons enables/disables Start and Stop based on whether polling is running.
+// hasValidConfiguration checks if all required fields are filled
+func (a *App) hasValidConfiguration() bool {
+	return a.serverEntry.Text != "" && a.userEntry.Text != "" && a.passEntry.Text != ""
+}
+
+// updatePollButtons enables/disables Start and Stop based on polling state and configuration validity.
 func (a *App) updatePollButtons() {
 	a.mu.Lock()
 	running := a.pollStop != nil
@@ -390,14 +404,19 @@ func (a *App) updatePollButtons() {
 			a.startBtn.Disable()
 			a.stopBtn.Enable()
 		} else {
-			a.startBtn.Enable()
+			// Enable only if configuration is valid
+			if a.hasValidConfiguration() {
+				a.startBtn.Enable()
+			} else {
+				a.startBtn.Disable()
+			}
 			a.stopBtn.Disable()
 		}
 	}
 	a.updateTrayMenu()
 }
 
-// updateTrayMenu updates the system tray menu items based on polling state.
+// updateTrayMenu updates the system tray menu items based on polling state and configuration.
 func (a *App) updateTrayMenu() {
 	if a.startPollItem == nil || a.stopPollItem == nil {
 		return
@@ -411,7 +430,8 @@ func (a *App) updateTrayMenu() {
 		a.startPollItem.Disabled = true
 		a.stopPollItem.Disabled = false
 	} else {
-		a.startPollItem.Disabled = false
+		// Disable start if configuration is invalid
+		a.startPollItem.Disabled = !a.hasValidConfiguration()
 		a.stopPollItem.Disabled = true
 	}
 
