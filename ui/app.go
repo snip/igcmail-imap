@@ -250,12 +250,19 @@ func (a *App) notifyInfo(msg string) {
 }
 
 func (a *App) quit() {
+	a.Logger.Info("IGCmail IMAP application shutting down")
+
 	a.mu.Lock()
+	pollingWasRunning := a.pollStop != nil
 	if a.pollStop != nil {
 		close(a.pollStop)
 		a.pollStop = nil
 	}
 	a.mu.Unlock()
+
+	if pollingWasRunning {
+		a.Logger.Info("IMAP polling stopped during application shutdown")
+	}
 
 	// Close logger
 	if a.Logger != nil {
@@ -360,6 +367,8 @@ func (a *App) StopPolling() {
 
 // Run shows the window and, if config.PollingEnabled, starts the poll loop (restores previous state).
 func (a *App) Run() {
+	a.Logger.Info("IGCmail IMAP application started")
+
 	if a.Config.PollingEnabled {
 		a.StartPolling()
 	} else {
