@@ -1,6 +1,6 @@
 # IGCmail IMAP
 
-A desktop application for Windows, macOS, and Linux that monitors an IMAP mailbox and automatically extracts IGC (flight track) file attachments. Built with Go and Fyne for a native cross-platform experience.
+A desktop application for Windows, macOS, and Linux that monitors an IMAP mailbox and automatically extracts IGC (flight track) file attachments. Built with Go and Fyne for a native cross-platform experience. It's main purpose is a workaround to Naviter's IGCmail which only work with POP3 protocol.
 
 ## ✨ Features
 
