@@ -140,10 +140,10 @@ jobs:
             cd "$dir"
             if ls *.exe 1> /dev/null 2>&1; then
               # Windows
-              zip -r "../igcmailimap-${dirname}.zip" .
+              zip -r "../${dirname}.zip" .
             else
               # Unix-like
-              tar -czf "../igcmailimap-${dirname}.tar.gz" .
+              tar -czf "../${dirname}.tar.gz" .
             fi
             cd ..
           fi
