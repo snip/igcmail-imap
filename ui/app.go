@@ -327,7 +327,10 @@ func (a *App) StartPolling() {
 	a.updatePollButtons()
 
 	// Log that polling has started
-	a.Logger.Info(fmt.Sprintf("IMAP polling started with %d second intervals", a.Config.IntervalSec))
+	a.Logger.Info(fmt.Sprintf("IMAP polling started for %s@%s with %d second intervals", a.Config.IMAPUser, a.Config.IMAPServer, a.Config.IntervalSec))
+
+	// Notify user that polling has started
+	a.notifyInfo(fmt.Sprintf("IMAP polling started (%d second intervals)", a.Config.IntervalSec))
 
 	go a.pollLoop(a.pollStop)
 }
@@ -349,6 +352,9 @@ func (a *App) StopPolling() {
 
 	// Log that polling has stopped
 	a.Logger.Info("IMAP polling stopped")
+
+	// Notify user that polling has stopped
+	a.notifyInfo("IMAP polling stopped")
 }
 
 // Run shows the window and, if config.PollingEnabled, starts the poll loop (restores previous state).
