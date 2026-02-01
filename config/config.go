@@ -23,14 +23,14 @@ type Config struct {
 	NotificationsEnabled bool   `json:"notifications_enabled"` // if true, desktop notifications are enabled
 }
 
-// Default returns a config with sensible defaults (Gmail IMAP, 61s interval, polling on).
+// Default returns a config with sensible defaults (Gmail IMAP, 61s interval, polling off).
 func Default() *Config {
 	return &Config{
 		IMAPServer:           "imap.gmail.com:993",
 		OutputFolder:         "",
 		IntervalSec:          60,
 		RunAtStartup:         false,
-		PollingEnabled:       true,
+		PollingEnabled:       false,
 		LoggingEnabled:       false,
 		NotificationsEnabled: true,
 	}
