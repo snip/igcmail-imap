@@ -54,7 +54,7 @@ jobs:
     - name: Build
       run: |
         if [ "$RUNNER_OS" = "Windows" ]; then
-          CGO_ENABLED=1 go build -o igcmailimap.exe .
+          CGO_ENABLED=1 go build -ldflags="-H windowsgui" -o igcmailimap.exe .
         else
           CGO_ENABLED=1 go build -o igcmailimap .
         fi

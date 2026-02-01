@@ -73,6 +73,7 @@ jobs:
       run: |
         if [ "${{ matrix.goos }}" = "windows" ]; then
           EXT=".exe"
+          LDFLAGS="-s -w -H windowsgui"
           if [ "${{ matrix.goarch }}" = "386" ]; then
             export CC=i686-w64-mingw32-gcc
             export CXX=i686-w64-mingw32-g++
@@ -82,8 +83,9 @@ jobs:
           fi
         else
           EXT=""
+          LDFLAGS="-s -w"
         fi
-        CGO_ENABLED=1 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -ldflags="-s -w" -o igcmailimap${EXT} .
+        CGO_ENABLED=1 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -ldflags="${LDFLAGS}" -o igcmailimap${EXT} .
       shell: bash
 
     - name: Upload build artifacts
