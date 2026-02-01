@@ -214,6 +214,12 @@ func (a *App) buildConfigForm() {
 	a.updatePollButtons()
 
 	quitBtn := widget.NewButton("Quit", func() { a.quit() })
+	minimizeBtn := widget.NewButton("Minimize to tray", func() {
+		a.Win.Hide()
+		if !a.shuttingDown {
+			a.notifyInfo("IGCmail IMAP is running in the background. Use the system tray icon to access it.")
+		}
+	})
 
 	// Initialize original values and save button state
 	a.storeOriginalValues()
@@ -231,6 +237,7 @@ func (a *App) buildConfigForm() {
 		widget.NewFormItem("", a.startBtn),
 		widget.NewFormItem("", a.stopBtn),
 		widget.NewFormItem("", a.saveBtn),
+		widget.NewFormItem("", minimizeBtn),
 		widget.NewFormItem("", quitBtn),
 	)
 	a.Win.SetContent(form)
