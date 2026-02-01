@@ -49,8 +49,9 @@ type App struct {
 	stopPollItem  *fyne.MenuItem
 
 	// pollStop is non-nil while the poll loop is running; close it to stop.
-	pollStop chan struct{}
-	mu       sync.Mutex
+	pollStop    chan struct{}
+	shuttingDown bool
+	mu           sync.Mutex
 }
 
 // New creates and configures the app (loads config/state, builds UI).
@@ -87,10 +88,25 @@ func New() (*App, error) {
 	ap.Win.Resize(fyne.NewSize(480, 380))
 	ap.Win.CenterOnScreen()
 
+	// Handle application shutdown (Command-Q, etc.)
+	a.Lifecycle().SetOnStopped(func() {
+		ap.cleanup()
+	})
+
 	// Close = hide to tray
 	ap.Win.SetCloseIntercept(func() {
 		ap.Win.Hide()
-		ap.notifyInfo("IGCmail IMAP is running in the background. Use the system tray icon to access it.")
+		// Check if app is still running after a short delay
+		go func() {
+			time.Sleep(100 * time.Millisecond)
+			// If we're not shutting down and the app is still running, show notification
+			ap.mu.Lock()
+			stillRunning := ap.pollStop != nil || !ap.shuttingDown
+			ap.mu.Unlock()
+			if stillRunning {
+				ap.notifyInfo("IGCmail IMAP is running in the background. Use the system tray icon to access it.")
+			}
+		}()
 	})
 
 	// System tray
@@ -249,7 +265,16 @@ func (a *App) notifyInfo(msg string) {
 	}
 }
 
-func (a *App) quit() {
+// cleanup handles the shutdown logging and cleanup operations
+func (a *App) cleanup() {
+	a.mu.Lock()
+	if a.shuttingDown {
+		a.mu.Unlock()
+		return // Already cleaned up
+	}
+	a.shuttingDown = true
+	a.mu.Unlock()
+
 	a.Logger.Info("IGCmail IMAP application shutting down")
 
 	a.mu.Lock()
@@ -268,7 +293,10 @@ func (a *App) quit() {
 	if a.Logger != nil {
 		a.Logger.Close()
 	}
+}
 
+func (a *App) quit() {
+	a.cleanup()
 	a.Fyne.Quit()
 }
 
