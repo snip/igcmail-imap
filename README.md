@@ -61,7 +61,7 @@ The application uses an intuitive GUI for configuration with smart features:
 
 - **IMAP Server**: Host:port (e.g., `imap.gmail.com:993`)
 - **Credentials**: Username and password
-- **Output Folder**: Directory browser with create new folder capability
+- **Output Folder**: Directory browser with create new folder capability (defaults to current directory)
 - **Polling Interval**: Seconds between checks
 - **Auto-startup**: Platform-specific startup integration (not available on Linux)
 - **Logging**: Enable/disable detailed logging with enhanced app lifecycle tracking
@@ -84,7 +84,7 @@ The application uses an intuitive GUI for configuration with smart features:
 ## 📋 Usage
 
 1. Launch the application and fill in your IMAP settings (server, username, password)
-2. Set your output folder using the directory browser (can create new folders)
+2. Optionally change the output folder (pre-filled with current directory) using the directory browser (can create new folders)
 3. Optionally enable logging and notifications
 4. Click "Start polling" to begin monitoring - the button is enabled once all required fields are filled
 5. Use "Minimize to Tray" button or close window to minimize to system tray

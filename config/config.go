@@ -25,9 +25,10 @@ type Config struct {
 
 // Default returns a config with sensible defaults (Gmail IMAP, 61s interval, polling off).
 func Default() *Config {
+	outputFolder, _ := os.Getwd()
 	return &Config{
 		IMAPServer:           "imap.gmail.com:993",
-		OutputFolder:         "",
+		OutputFolder:         outputFolder,
 		IntervalSec:          60,
 		RunAtStartup:         false,
 		PollingEnabled:       false,
