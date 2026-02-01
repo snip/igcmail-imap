@@ -108,8 +108,9 @@ jobs:
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
       with:
-        files: artifacts/*.zip
-        files: artifacts/*.tar.gz
+        files: |
+          artifacts/*.zip
+          artifacts/*.tar.gz
         generate_release_notes: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
