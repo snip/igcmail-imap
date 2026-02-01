@@ -32,6 +32,14 @@ jobs:
             goarch: arm64
             name: darwin-arm64
 
+          # Linux builds
+          - goos: linux
+            goarch: amd64
+            name: linux-amd64
+          - goos: linux
+            goarch: 386
+            name: linux-386
+
     runs-on: ubuntu-latest
 
     steps:

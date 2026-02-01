@@ -15,6 +15,8 @@ jobs:
             name: Windows
           - os: macos-latest
             name: macOS
+          - os: ubuntu-latest
+            name: Linux
 
     runs-on: ${{ matrix.os }}
 
@@ -42,6 +44,12 @@ jobs:
 
     - name: Vet code
       run: go vet ./...
+
+    - name: Install GUI dependencies (Linux)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgl1-mesa-dev libx11-dev xorg-dev libxrandr-dev libxcursor-dev libxinerama-dev libxi-dev
 
     - name: Build
       run: |
