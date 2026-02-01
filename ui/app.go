@@ -90,6 +90,7 @@ func New() (*App, error) {
 	// Close = hide to tray
 	ap.Win.SetCloseIntercept(func() {
 		ap.Win.Hide()
+		ap.notifyInfo("IGCmail IMAP is running in the background. Use the system tray icon to access it.")
 	})
 
 	// System tray
