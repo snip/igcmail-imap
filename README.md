@@ -12,7 +12,7 @@ A desktop application for Windows, macOS, and Linux that monitors an IMAP mailbo
 - **📝 Comprehensive Logging**: Detailed operation logs with configurable output (app lifecycle, polling details, server info)
 - **🔔 Desktop Notifications**: Optional notifications for errors, polling events, and window management
 - **🚀 Auto-Startup**: Platform-specific startup integration (macOS Launch Agents, Windows Registry, Linux not supported)
-- **⏯️ Polling Controls**: Start/stop polling from both main UI and system tray menu
+- **⏯️ Polling Controls**: Start/stop polling from both main UI and system tray menu (disabled by default until configuration is complete)
 - **🔧 Smart Configuration UI**: GUI-based settings with change detection, directory browser, and persistent storage
 - **🌍 Cross-Platform**: Native builds for Windows, macOS, and Linux (both 64-bit and 32-bit architectures)
 - **🚀 CI/CD**: Automated testing and releases with GitHub Actions
@@ -71,6 +71,7 @@ The application uses an intuitive GUI for configuration with smart features:
 
 - **Change Detection**: Save button only enables when settings are modified
 - **Directory Browser**: Browse existing folders or create new ones
+- **Configuration Validation**: Start polling button is disabled until server, username, and password are filled
 - **Minimize to Tray**: Dedicated button to minimize to system tray
 - **Quit Button**: Clean application exit with proper shutdown logging
 
@@ -82,14 +83,16 @@ The application uses an intuitive GUI for configuration with smart features:
 
 ## 📋 Usage
 
-1. Launch the application and configure your IMAP settings
+1. Launch the application and fill in your IMAP settings (server, username, password)
 2. Set your output folder using the directory browser (can create new folders)
 3. Optionally enable logging and notifications
-4. Start polling to begin monitoring - you'll see notifications when polling starts
+4. Click "Start polling" to begin monitoring - the button is enabled once all required fields are filled
 5. Use "Minimize to Tray" button or close window to minimize to system tray
 6. Use tray menu to control polling or access settings
 7. IGC files are automatically extracted as emails arrive
 8. Use "Quit" button or tray menu to exit with proper shutdown logging
+
+**Note**: Polling is disabled by default to allow configuration before starting monitoring.
 
 ## 🖥️ System Tray & UI Controls
 
