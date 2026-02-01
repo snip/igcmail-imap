@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+
+    - name: Cache Go modules
+      uses: actions/cache@v3
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Verify dependencies
+      run: go mod verify
+
+    - name: Check formatting
+      run: |
+        if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
+          echo "The following files are not formatted properly:"
+          gofmt -s -l .
+          exit 1
+        fi
+
+    - name: Vet code
+      run: go vet ./...
+
+    - name: Build (Linux)
+      run: CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o igcmailimap-linux .
+
+    - name: Build (Windows)
+      run: CGO_ENABLED=1 GOOS=windows GOARCH=amd64 go build -o igcmailimap-windows.exe .
+
+    - name: Build (macOS)
+      run: CGO_ENABLED=1 GOOS=darwin GOARCH=amd64 go build -o igcmailimap-darwin .
