@@ -12,6 +12,7 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/driver/desktop"
+	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"igcmailimap/config"
 	"igcmailimap/extract"
@@ -87,6 +88,9 @@ func New() (*App, error) {
 	ap.buildConfigForm()
 	ap.Win.Resize(fyne.NewSize(480, 380))
 	ap.Win.CenterOnScreen()
+
+	// Set application icon for Windows compatibility
+	a.SetIcon(theme.MailComposeIcon())
 
 	// Handle application shutdown (Command-Q, etc.)
 	a.Lifecycle().SetOnStopped(func() {
