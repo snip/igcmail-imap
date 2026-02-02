@@ -1,6 +1,7 @@
 package ui
 
 import (
+	_ "embed"
 	"fmt"
 	"runtime"
 	"strconv"
@@ -21,6 +22,9 @@ import (
 	"igcmailimap/startup"
 	"igcmailimap/state"
 )
+
+//go:embed igcmailimap.png
+var iconData []byte
 
 // App holds the Fyne app, main window, config form, and poll state.
 type App struct {
@@ -100,8 +104,13 @@ func New() (*App, error) {
 	ap.Win.Resize(fyne.NewSize(480, 380))
 	ap.Win.CenterOnScreen()
 
-	// Set application icon for Windows compatibility
-	a.SetIcon(theme.MailComposeIcon())
+	// Set application icon
+	if icon, err := loadAppIcon(); err == nil {
+		a.SetIcon(icon)
+	} else {
+		// Fallback to theme icon if custom icon fails to load
+		a.SetIcon(theme.MailComposeIcon())
+	}
 
 	// Handle application shutdown (Command-Q, etc.)
 	a.Lifecycle().SetOnStopped(func() {
@@ -307,6 +316,14 @@ func (a *App) save() {
 	// Reset original values and disable save button
 	a.storeOriginalValues()
 	a.updateSaveButtonState()
+}
+
+// loadAppIcon loads the embedded application icon
+func loadAppIcon() (fyne.Resource, error) {
+	if len(iconData) == 0 {
+		return nil, fmt.Errorf("embedded icon data not available")
+	}
+	return fyne.NewStaticResource("icon", iconData), nil
 }
 
 func (a *App) storeOriginalValues() {
