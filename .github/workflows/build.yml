@@ -120,7 +120,6 @@ jobs:
         name: igcmailimap-${{ matrix.name }}
         path: |
           igcmailimap*
-          ressources/igcmailimap.png
           !*.sum
           !*.mod
 
