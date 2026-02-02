@@ -24,7 +24,10 @@ import (
 )
 
 //go:embed igcmailimap.png
-var iconData []byte
+var iconPNG []byte
+
+//go:embed igcmailimap.ico
+var iconICO []byte
 
 // App holds the Fyne app, main window, config form, and poll state.
 type App struct {
@@ -320,10 +323,21 @@ func (a *App) save() {
 
 // loadAppIcon loads the embedded application icon
 func loadAppIcon() (fyne.Resource, error) {
-	if len(iconData) == 0 {
-		return nil, fmt.Errorf("embedded icon data not available")
+	var data []byte
+	var format string
+
+	// Prefer ICO for Windows, PNG for others
+	if runtime.GOOS == "windows" && len(iconICO) > 0 {
+		data = iconICO
+		format = "ico"
+	} else if len(iconPNG) > 0 {
+		data = iconPNG
+		format = "png"
+	} else {
+		return nil, fmt.Errorf("no embedded icon data available")
 	}
-	return fyne.NewStaticResource("icon", iconData), nil
+
+	return fyne.NewStaticResource("icon."+format, data), nil
 }
 
 func (a *App) storeOriginalValues() {

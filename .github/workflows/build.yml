@@ -71,9 +71,9 @@ jobs:
           # Install 32-bit versions of GUI libraries
           sudo apt-get install -y libgl1-mesa-dev:i386 libx11-dev:i386 libxi-dev:i386 libxrandr-dev:i386 libxcursor-dev:i386 libxinerama-dev:i386 libxxf86vm-dev:i386
         fi
-        # Install cross-compilation toolchains for Windows builds
+        # Install cross-compilation toolchains and icon tools for Windows builds
         if [ "${{ matrix.goos }}" = "windows" ]; then
-          sudo apt-get install -y gcc-mingw-w64
+          sudo apt-get install -y gcc-mingw-w64 imagemagick
         fi
 
     - name: Cache Go modules
@@ -88,7 +88,15 @@ jobs:
       run: go mod download
 
     - name: Prepare embedded resources
-      run: cp ressources/igcmailimap.png ui/
+      run: |
+        cp ressources/igcmailimap.png ui/
+        # Create ICO version for Windows
+        if command -v convert >/dev/null 2>&1; then
+          convert ressources/igcmailimap.png -background transparent ui/igcmailimap.ico
+        else
+          # Fallback: copy PNG as ICO
+          cp ressources/igcmailimap.png ui/igcmailimap.ico
+        fi
 
     - name: Build application
       run: |
