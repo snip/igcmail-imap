@@ -16,7 +16,7 @@ A desktop application for Windows, macOS, and Linux that monitors an IMAP mailbo
 - **🔧 Smart Configuration UI**: GUI-based settings with change detection, directory browser, and persistent storage
 - **🌍 Cross-Platform**: Native builds for Windows, macOS, and Linux (both 64-bit and 32-bit architectures)
 - **🚀 CI/CD**: Automated testing and releases with GitHub Actions
-- **🖥️ Native GUI Experience**: No terminal windows on Windows, proper app bundles on macOS
+- **🖥️ Native GUI Experience**: Embedded custom application icon, no terminal windows on Windows, proper app bundles on macOS
 
 ## 🚀 Quick Start
 

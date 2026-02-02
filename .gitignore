@@ -60,3 +60,6 @@ vendor/
 *.msi
 *.msm
 *.msp
+
+# Embedded resources (copied during build)
+ui/igcmailimap.png

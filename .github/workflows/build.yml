@@ -87,6 +87,9 @@ jobs:
     - name: Install dependencies
       run: go mod download
 
+    - name: Prepare embedded resources
+      run: cp ressources/igcmailimap.png ui/
+
     - name: Build application
       run: |
         if [ "${{ matrix.goos }}" = "windows" ]; then
@@ -117,6 +120,7 @@ jobs:
         name: igcmailimap-${{ matrix.name }}
         path: |
           igcmailimap*
+          ressources/igcmailimap.png
           !*.sum
           !*.mod
 
