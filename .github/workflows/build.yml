@@ -90,11 +90,17 @@ jobs:
     - name: Prepare embedded resources
       run: |
         cp ressources/igcmailimap.png ui/
-        # Create ICO version for Windows
+        # Create ICO version for Windows with proper icon sizes
         if command -v convert >/dev/null 2>&1; then
-          convert ressources/igcmailimap.png -background transparent ui/igcmailimap.ico
+          # Create ICO with multiple standard icon sizes
+          convert ressources/igcmailimap.png -background transparent \
+            \( -clone 0 -resize 16x16 \) \
+            \( -clone 0 -resize 32x32 \) \
+            \( -clone 0 -resize 48x48 \) \
+            \( -clone 0 -resize 64x64 \) \
+            -delete 0 ui/igcmailimap.ico
         else
-          # Fallback: copy PNG as ICO
+          # Fallback: copy PNG as ICO (may not work but better than nothing)
           cp ressources/igcmailimap.png ui/igcmailimap.ico
         fi
 
