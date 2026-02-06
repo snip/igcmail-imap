@@ -71,9 +71,9 @@ jobs:
           # Install 32-bit versions of GUI libraries
           sudo apt-get install -y libgl1-mesa-dev:i386 libx11-dev:i386 libxi-dev:i386 libxrandr-dev:i386 libxcursor-dev:i386 libxinerama-dev:i386 libxxf86vm-dev:i386
         fi
-        # Install cross-compilation toolchains and icon tools for Windows builds
+        # Install cross-compilation toolchains for Windows builds
         if [ "${{ matrix.goos }}" = "windows" ]; then
-          sudo apt-get install -y gcc-mingw-w64 imagemagick
+          sudo apt-get install -y gcc-mingw-w64
         fi
 
     - name: Cache Go modules
@@ -90,19 +90,8 @@ jobs:
     - name: Prepare embedded resources
       run: |
         cp ressources/igcmailimap.png ui/
-        # Create ICO version for Windows with proper icon sizes
-        if command -v convert >/dev/null 2>&1; then
-          # Create ICO with multiple standard icon sizes
-          convert ressources/igcmailimap.png -background transparent \
-            \( -clone 0 -resize 16x16 \) \
-            \( -clone 0 -resize 32x32 \) \
-            \( -clone 0 -resize 48x48 \) \
-            \( -clone 0 -resize 64x64 \) \
-            -delete 0 ui/igcmailimap.ico
-        else
-          # Fallback: copy PNG as ICO (may not work but better than nothing)
-          cp ressources/igcmailimap.png ui/igcmailimap.ico
-        fi
+        # Create ICO version for Windows with proper icon sizes using Go tool
+        go run tools/ico-generator/main.go ressources/igcmailimap.png ui/igcmailimap.ico
 
     - name: Build application
       run: |
