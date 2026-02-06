@@ -323,21 +323,17 @@ func (a *App) save() {
 
 // loadAppIcon loads the embedded application icon
 func loadAppIcon() (fyne.Resource, error) {
-	var data []byte
-	var format string
-
-	// Prefer ICO for Windows, PNG for others
-	if runtime.GOOS == "windows" && len(iconICO) > 0 {
-		data = iconICO
-		format = "ico"
-	} else if len(iconPNG) > 0 {
-		data = iconPNG
-		format = "png"
-	} else {
-		return nil, fmt.Errorf("no embedded icon data available")
+	// For runtime application icons, always use PNG as it's more reliable across platforms
+	if len(iconPNG) > 0 {
+		return fyne.NewStaticResource("icon.png", iconPNG), nil
 	}
 
-	return fyne.NewStaticResource("icon."+format, data), nil
+	// Fallback to ICO if PNG is not available (shouldn't happen in normal builds)
+	if len(iconICO) > 0 {
+		return fyne.NewStaticResource("icon.ico", iconICO), nil
+	}
+
+	return nil, fmt.Errorf("no embedded icon data available")
 }
 
 func (a *App) storeOriginalValues() {

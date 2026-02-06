@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"encoding/binary"
 	"fmt"
 	"image"
@@ -35,8 +34,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Standard ICO sizes for Windows
-	sizes := []int{16, 32, 48, 64}
+	// Standard ICO sizes for Windows (including high DPI sizes)
+	sizes := []int{16, 24, 32, 48, 64, 128, 256}
 
 	// Generate ICO file
 	err = createICOFile(outputFile, srcImg, sizes)
@@ -53,6 +52,61 @@ func resizeImage(src image.Image, width, height int) image.Image {
 	dst := image.NewRGBA(image.Rect(0, 0, width, height))
 	draw.BiLinear.Scale(dst, dst.Bounds(), src, src.Bounds(), draw.Over, nil)
 	return dst
+}
+
+// imageToBMP converts an image to BMP format suitable for ICO files
+// ICO files expect 32-bit BGRA format with rows stored bottom-to-top
+func imageToBMP(img image.Image) ([]byte, error) {
+	bounds := img.Bounds()
+	width := bounds.Dx()
+	height := bounds.Dy()
+
+	// BMP header for 32-bit BGRA
+	bmpHeaderSize := 40
+	imageSize := width * height * 4
+	fileSize := 14 + bmpHeaderSize + imageSize
+
+	// BMP file header (14 bytes)
+	fileHeader := make([]byte, 14)
+	fileHeader[0] = 'B'  // Signature
+	fileHeader[1] = 'M'
+	binary.LittleEndian.PutUint32(fileHeader[2:], uint32(fileSize)) // File size
+	binary.LittleEndian.PutUint32(fileHeader[10:], uint32(14+bmpHeaderSize)) // Data offset
+
+	// BMP info header (40 bytes)
+	infoHeader := make([]byte, 40)
+	binary.LittleEndian.PutUint32(infoHeader[0:], 40) // Header size
+	binary.LittleEndian.PutUint32(infoHeader[4:], uint32(width))  // Width
+	binary.LittleEndian.PutUint32(infoHeader[8:], uint32(height)) // Height
+	binary.LittleEndian.PutUint16(infoHeader[12:], 1)  // Planes
+	binary.LittleEndian.PutUint16(infoHeader[14:], 32) // Bits per pixel
+	binary.LittleEndian.PutUint32(infoHeader[16:], 0)  // Compression
+	binary.LittleEndian.PutUint32(infoHeader[20:], uint32(imageSize)) // Image size
+	binary.LittleEndian.PutUint32(infoHeader[24:], 2835) // X pixels per meter
+	binary.LittleEndian.PutUint32(infoHeader[28:], 2835) // Y pixels per meter
+
+	// Convert image to BGRA format, bottom-to-top
+	imageData := make([]byte, imageSize)
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			// ICO stores rows bottom-to-top
+			srcY := height - 1 - y
+			r, g, b, a := img.At(x, srcY).RGBA()
+			offset := (y*width + x) * 4
+			imageData[offset] = byte(b >> 8)     // B
+			imageData[offset+1] = byte(g >> 8)   // G
+			imageData[offset+2] = byte(r >> 8)   // R
+			imageData[offset+3] = byte(a >> 8)   // A
+		}
+	}
+
+	// Combine headers and data
+	result := make([]byte, 0, fileSize)
+	result = append(result, fileHeader...)
+	result = append(result, infoHeader...)
+	result = append(result, imageData...)
+
+	return result, nil
 }
 
 // createICOFile creates an ICO file with multiple sizes from a source image
@@ -89,13 +143,11 @@ func createICOFile(filename string, srcImg image.Image, sizes []int) error {
 	for _, size := range sizes {
 		resized := resizeImage(srcImg, size, size)
 
-		// Convert to PNG format for storage in ICO
-		var buf bytes.Buffer
-		if err := png.Encode(&buf, resized); err != nil {
+		// Convert to BMP format for traditional ICO storage
+		bmpData, err := imageToBMP(resized)
+		if err != nil {
 			return err
 		}
-
-		pngData := buf.Bytes()
 
 		dirEntries = append(dirEntries, ICODirEntry{
 			Width:       uint8(size),
@@ -104,12 +156,12 @@ func createICOFile(filename string, srcImg image.Image, sizes []int) error {
 			Reserved:    0,
 			Planes:      1,
 			BPP:         32,
-			Size:        uint32(len(pngData)),
+			Size:        uint32(len(bmpData)),
 			Offset:      offset,
 		})
 
-		imageData = append(imageData, pngData...)
-		offset += uint32(len(pngData))
+		imageData = append(imageData, bmpData...)
+		offset += uint32(len(bmpData))
 	}
 
 	// Write directory entries
