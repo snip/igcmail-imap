@@ -71,9 +71,11 @@ jobs:
           # Install 32-bit versions of GUI libraries
           sudo apt-get install -y libgl1-mesa-dev:i386 libx11-dev:i386 libxi-dev:i386 libxrandr-dev:i386 libxcursor-dev:i386 libxinerama-dev:i386 libxxf86vm-dev:i386
         fi
-        # Install cross-compilation toolchains for Windows builds
+        # Install cross-compilation toolchains and icon tools for Windows builds
         if [ "${{ matrix.goos }}" = "windows" ]; then
           sudo apt-get install -y gcc-mingw-w64
+          # Install rsrc tool for embedding icons in Windows executables
+          go install github.com/akavel/rsrc@latest
         fi
 
     - name: Cache Go modules
@@ -101,9 +103,13 @@ jobs:
           if [ "${{ matrix.goarch }}" = "386" ]; then
             export CC=i686-w64-mingw32-gcc
             export CXX=i686-w64-mingw32-g++
+            # Generate Windows resource file for 32-bit
+            ~/go/bin/rsrc -arch 386 -ico ui/igcmailimap.ico
           else
             export CC=x86_64-w64-mingw32-gcc
             export CXX=x86_64-w64-mingw32-g++
+            # Generate Windows resource file for 64-bit
+            ~/go/bin/rsrc -arch amd64 -ico ui/igcmailimap.ico
           fi
         else
           EXT=""
@@ -115,6 +121,10 @@ jobs:
           fi
         fi
         CGO_ENABLED=1 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -ldflags="${LDFLAGS}" -o igcmailimap${EXT} .
+        # Clean up .syso files after building
+        if [ "${{ matrix.goos }}" = "windows" ]; then
+          rm -f rsrc_*.syso
+        fi
       shell: bash
 
     - name: Upload build artifacts
