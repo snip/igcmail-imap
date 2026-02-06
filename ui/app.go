@@ -107,12 +107,15 @@ func New() (*App, error) {
 	ap.Win.Resize(fyne.NewSize(480, 380))
 	ap.Win.CenterOnScreen()
 
-	// Set application icon
+	// Set application and window icons
 	if icon, err := loadAppIcon(); err == nil {
 		a.SetIcon(icon)
+		ap.Win.SetIcon(icon)
 	} else {
 		// Fallback to theme icon if custom icon fails to load
-		a.SetIcon(theme.MailComposeIcon())
+		fallbackIcon := theme.MailComposeIcon()
+		a.SetIcon(fallbackIcon)
+		ap.Win.SetIcon(fallbackIcon)
 	}
 
 	// Handle application shutdown (Command-Q, etc.)
