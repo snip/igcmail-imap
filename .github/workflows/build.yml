@@ -21,30 +21,30 @@ jobs:
             goarch: amd64
             name: windows-amd64
             runs-on: ubuntu-latest
-          - goos: windows
-            goarch: 386
-            name: windows-386
-            runs-on: ubuntu-latest
+          #- goos: windows
+          #  goarch: 386
+          #  name: windows-386
+          #  runs-on: ubuntu-latest
 
           # macOS builds
-          - goos: darwin
-            goarch: amd64
-            name: darwin-amd64
-            runs-on: macos-latest
-          - goos: darwin
-            goarch: arm64
-            name: darwin-arm64
-            runs-on: macos-latest
+          #- goos: darwin
+          #  goarch: amd64
+          #  name: darwin-amd64
+          #  runs-on: macos-latest
+          #- goos: darwin
+          #  goarch: arm64
+          #  name: darwin-arm64
+          #  runs-on: macos-latest
 
           # Linux builds
-          - goos: linux
-            goarch: amd64
-            name: linux-amd64
-            runs-on: ubuntu-latest
-          - goos: linux
-            goarch: 386
-            name: linux-386
-            runs-on: ubuntu-latest
+          #- goos: linux
+          #  goarch: amd64
+          #  name: linux-amd64
+          #  runs-on: ubuntu-latest
+          #- goos: linux
+          #  goarch: 386
+          #  name: linux-386
+          #  runs-on: ubuntu-latest
 
     runs-on: ${{ matrix.runs-on }}
 
@@ -73,7 +73,7 @@ jobs:
         fi
         # Install cross-compilation toolchains and icon tools for Windows builds
         if [ "${{ matrix.goos }}" = "windows" ]; then
-          sudo apt-get install -y gcc-mingw-w64
+          sudo apt-get install -y gcc-mingw-w64 imagemagick
           # Install rsrc tool for embedding icons in Windows executables
           go install github.com/akavel/rsrc@latest
         fi
@@ -92,8 +92,19 @@ jobs:
     - name: Prepare embedded resources
       run: |
         cp ressources/igcmailimap.png ui/
-        # Create ICO version for Windows with proper icon sizes using Go tool
-        go run tools/ico-generator/main.go ressources/igcmailimap.png ui/igcmailimap.ico
+        # Create ICO version for Windows with proper icon sizes
+        if command -v convert >/dev/null 2>&1; then
+          # Create ICO with multiple standard icon sizes
+          convert ressources/igcmailimap.png -background transparent \
+            \( -clone 0 -resize 16x16 \) \
+            \( -clone 0 -resize 32x32 \) \
+            \( -clone 0 -resize 48x48 \) \
+            \( -clone 0 -resize 64x64 \) \
+            -delete 0 ui/igcmailimap.ico
+        else
+          # Fallback: copy PNG as ICO (may not work but better than nothing)
+          cp ressources/igcmailimap.png ui/igcmailimap.ico
+        fi
 
     - name: Build application
       run: |
