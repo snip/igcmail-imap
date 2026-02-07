@@ -20,6 +20,14 @@ A desktop application for Windows, macOS, and Linux that monitors an IMAP mailbo
 
 ## 🚀 Quick Start
 
+### Use pre-built version
+
+- Go to https://github.com/snip/igcmail-imap/releases/
+- Download version you need (most probably windows-amd64 if you want to run it on recent Windows)
+- Unzip the file & run it
+- Add your IMAP user name & password
+- Save & Start polling
+
 ### Prerequisites
 
 - **Go 1.21 or newer**
