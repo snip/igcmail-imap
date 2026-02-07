@@ -64,3 +64,6 @@ vendor/
 # Embedded resources (copied during build)
 ui/igcmailimap.png
 ui/igcmailimap.ico
+
+# Windows resource files (generated during build)
+*.syso
